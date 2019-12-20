@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <extension key="de.michaelsbund.mods" type="module">
   <file>mods</file>
-  <name>mods</name>
+  <name>Sankt Michaelsbund Modifikationen</name>
   <description>CiviCRM modifications for Sankt Michaelsbund</description>
   <license>AGPL-3.0</license>
   <maintainer>
