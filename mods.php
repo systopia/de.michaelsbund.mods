@@ -164,11 +164,16 @@ function mods_civicrm_searchColumns($objectName, &$headers, &$rows, &$selector) 
             $contact_ids = array_map(function($relationship) {
               return $relationship['contact_id_b'];
             }, $relationships['values']);
-            $ansprechpartner = CRM_Contact_BAO_Contact_Utils::formatContactIDSToLinks($contact_ids);
-            $ansprechpartner = array_map(function($links) {
-              return $links['view'];
-            }, $ansprechpartner['rows']);
-            $value = '<ul><li>' . implode('</li><li>', $ansprechpartner) . '</li></ul>';
+
+            $contact_links = array_map(function($contact_id) {
+              $contact = civicrm_api3('Contact', 'getsingle', array(
+                'id' => $contact_id,
+              ));
+              return '<a href="' . CRM_Utils_System::url('civicrm/contact/view', 'reset=1&cid=' . $contact_id) . '">'
+                . $contact['display_name']
+                . '</a>';
+            }, $contact_ids);
+            $value = '<ul><li>' . implode('</li><li>', $contact_links) . '</li></ul>';
           }
           else {
             $value = NULL;
@@ -179,14 +184,18 @@ function mods_civicrm_searchColumns($objectName, &$headers, &$rows, &$selector) 
     );
 
     foreach ($additional_headers as &$additional_header) {
-      // Add header field.
-      $headers[$additional_header['field_name']] = array_filter($additional_header, function($key) {
-        return in_array($key, array(
-          'name',
-          'field_name',
-          'weight',
-        ));
-      }, ARRAY_FILTER_USE_KEY);
+      // TODO: Once the CRM/Contact/Form/Selector.tpl supports arbitrary columns,
+      //       set the header column. In the meantime, we're using a separate
+      //       template to inject the columns using JavaScript.
+      //       @see mods_civicrm_alterContent().
+//      // Add header field.
+//      $headers[$additional_header['field_name']] = array_filter($additional_header, function($key) {
+//        return in_array($key, array(
+//          'name',
+//          'field_name',
+//          'weight',
+//        ));
+//      }, ARRAY_FILTER_USE_KEY);
     }
 
     // Add data.
@@ -199,26 +208,14 @@ function mods_civicrm_searchColumns($objectName, &$headers, &$rows, &$selector) 
         }
       }
     }
-
-    $stop = 'here';
   }
 }
 
 /**
- * The extra search column (see above) does not alter the template,
- * so we inject javascript into the template-content.
+ * Implements hook_civicrm_alterContent().
  */
 function mods_civicrm_alterContent(&$content, $context, $tplName, &$object) {
-  // get page- resp. form-class of the object
-  // TODO: Do this only once when rendering the contact selector table.
-  if (is_a($object, 'CRM_Contact_Form_Search')) {
-    // parse the template with smarty
-    $smarty = CRM_Core_Smarty::singleton();
-    $path = E::path('templates/CRM/Contact/SearchColumns.tpl');
-    $html = $smarty->fetch($path);
-    // append the html to the content
-    $content .= $html;
-  }
+  CRM_Mods_Hooks::alterContent($content, $context, $tplName, $object);
 }
 
 // --- Functions below this ship commented out. Uncomment as required. ---
