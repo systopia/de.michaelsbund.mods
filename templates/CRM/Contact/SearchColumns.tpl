@@ -2,12 +2,16 @@
 <table id="contact_search_data">
   <thead>
     <tr>
+      <th scope="col">Arbeitgeber</th>
+      <th scope="col">Funktion</th>
       <th scope="col">Ansprechpartner</th>
     </tr>
   </thead>
   <tbody>
   {foreach from=$rows item=row}
     <tr id="rowid{$row.contact_id}" class="{cycle values="odd-row,even-row"} crm-contact_{$row.contact_id}">
+      <td class="crm-contact-arbeitgeber">{$row.arbeitgeber}</td>
+      <td class="crm-contact-job_title">{$row.job_title}</td>
       <td class="crm-contact-ansprechpartner">{$row.ansprechpartner}</td>
     </tr>
   {/foreach}
@@ -22,9 +26,9 @@
       var $headerRow = $selectorTable.find('thead tr');
 
       // get the penultimate column index
-      var columnNr = $headerRow.find('th:last').prev('th').index();
+      var columnNr = $headerRow.find('th:last').prev('th').index() + 1;
 
-      // TODO: Add header column.
+      // Add header column.
       $('#contact_search_data thead tr').find('th').insertAfter($selectorTable.find('thead tr th:nth-child(' + columnNr + ')'));
 
       // iterate over all items
